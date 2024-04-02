@@ -11,9 +11,6 @@ egui_demo_lib = { version = "0.27.1", git = "https://github.com/emilk/egui", rev
 ron = "0.8.1"
 serde = { version = "1.0.197", features = ["derive"] }
 egui_file = "0.17.0"
-handlebars = "5.1.2"
-serde_json = "1.0"
-rust-format = "0.3"
 egui-notify = "0.14.0"
 wasm-bindgen-futures = "*"
 wasm-bindgen = "*"
@@ -26,4 +23,4 @@ wasm-bindgen = "*"
 # strip = true
 
 [patch.crates-io]
-egui = { version = "0.27.1", path="../egui"}
+egui = { version = "0.27.1", git = "https://github.com/emilk/egui", rev = "36ebce163a74af40f6216cba2d68aa4c728443eb"}
