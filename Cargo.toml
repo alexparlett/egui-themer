@@ -26,4 +26,4 @@ wasm-bindgen = "*"
 # strip = true
 
 [patch.crates-io]
-egui = { version = "0.27.1", git = "https://github.com/emilk/egui", rev = "36ebce163a74af40f6216cba2d68aa4c728443eb"}
+egui = { version = "0.27.1", path="../egui"}
