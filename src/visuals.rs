@@ -104,13 +104,13 @@ impl VisualsMenu {
         ));
         ui.add(float_picker(
             "Text Cursor Width",
-            &mut visuals.text_cursor.width,
-            self.visuals_default.text_cursor.width,
+            &mut visuals.text_cursor.stroke.width,
+            self.visuals_default.text_cursor.stroke.width,
         ));
         ui.add(bool_picker(
             "Text Cursor Preview",
-            &mut visuals.text_cursor_preview,
-            self.visuals_default.text_cursor_preview,
+            &mut visuals.text_cursor.preview,
+            self.visuals_default.text_cursor.preview,
         ));
         ui.add(float_picker(
             "Clip Rect Margin",

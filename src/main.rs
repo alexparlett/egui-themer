@@ -1,13 +1,14 @@
 use eframe::{egui::{
     Frame, Hyperlink, Layout, Margin, Response, RichText, ScrollArea, SidePanel, Style, Ui,
     Visuals, Widget,
-}, egui, emath::Align};
+}, emath::Align};
 use egui_demo_lib::DemoWindows;
 use export::ExportMenu;
 use interaction::InteractionMenu;
 use misc::MiscMenu;
 use spacing::SpacingMenu;
 use visuals::VisualsMenu;
+use crate::import::ImportMenu;
 
 mod export;
 mod interaction;
@@ -15,6 +16,7 @@ mod misc;
 mod pickers;
 mod spacing;
 mod visuals;
+mod import;
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
@@ -45,6 +47,7 @@ fn main() {
 struct Themer {
     demo: DemoWindows,
     export: ExportMenu,
+    import: ImportMenu,
     visuals: VisualsMenu,
     misc: MiscMenu,
     spacing: SpacingMenu,
@@ -86,6 +89,9 @@ impl eframe::App for Themer {
                     ui.separator();
 
                     self.export.ui(ui, ctx, &style);
+                    ui.separator();
+
+                    self.import.ui(ui, ctx, &mut style);
                     ui.separator();
 
                     ScrollArea::both().show(ui, |ui| {

@@ -15,22 +15,17 @@ use crate::section_title;
 const TEMPLATE: &str = include_str!("template.rs");
 
 #[derive(Default)]
-pub struct ExportMenu {
+pub struct ImportMenu {
     path: Option<PathBuf>,
     toasts: Toasts,
     file_dialog: Option<FileDialog>,
-    eframe: bool,
 }
 
-impl ExportMenu {
-    pub fn ui(&mut self, ui: &mut Ui, ctx: &Context, style: &Style) {
-        ui.add(section_title("Export", None));
+impl ImportMenu {
+    pub fn ui(&mut self, ui: &mut Ui, ctx: &Context, style: &mut Style) {
+        ui.add(section_title("Import", None));
 
         ui.columns(2, |cols| {
-            cols[0].label("Eframe:");
-            cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
-                ui.checkbox(&mut self.eframe, "");
-            });
             cols[0].label("Path:");
             cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
                 if ui
@@ -65,38 +60,40 @@ impl ExportMenu {
             [ui.available_width(), 0.0].into(),
             Layout::centered_and_justified(Direction::TopDown),
             |ui| {
-                if ui.button("Export").clicked() {
+                if ui.button("Import").clicked() {
                     #[cfg(not(target_arch = "wasm32"))]
                     if let Some(path) = &self.path {
                         match path.extension().unwrap_throw().to_str().unwrap_throw() {
                             "ron" => {
-                                let file = std::fs::File::create(path).expect("opened");
-                                let file = std::io::BufWriter::new(file);
+                                let file = std::fs::File::open(path).expect("opened");
+                                let file = std::io::BufReader::new(file);
 
-                                match ron::ser::to_writer_pretty(
+                                let imported: Style = ron::de::from_reader(
                                     file,
-                                    style,
-                                    ron::ser::PrettyConfig::default().struct_names(true),
-                                ) {
-                                    Ok(_) => self.toasts.success("Exported!"),
-                                    Err(err) => self.toasts.error(format!("Export Error: {err}")),
-                                }
-                            }
-                            "rs" => {
-                                match generate_source(style, self.eframe) {
-                                    Ok(src) => match fs::write(path, src) {
-                                        Ok(_) => self.toasts.success("Exported!"),
-                                        Err(err) => self.toasts.error(format!("Export Error: {err}")),
-                                    },
-                                    Err(err) => self.toasts.error(format!("Export Error: {err}")),
-                                }
+                                ).unwrap_throw();
+
+                                style.override_text_style = imported.override_text_style.clone();
+                                style.override_font_id = imported.override_font_id.clone();
+                                style.text_styles = imported.text_styles.clone();
+                                style.drag_value_text_style = imported.drag_value_text_style.clone();
+                                style.wrap = imported.wrap.clone();
+                                style.spacing = imported.spacing.clone();
+                                style.interaction = imported.interaction.clone();
+                                style.visuals = imported.visuals.clone();
+                                style.animation_time = imported.animation_time.clone();
+                                style.debug = imported.debug.clone();
+                                style.explanation_tooltips = imported.explanation_tooltips.clone();
+                                style.url_in_tooltip = imported.url_in_tooltip.clone();
+                                style.always_scroll_the_only_direction = imported.always_scroll_the_only_direction.clone();
+
+                                self.toasts.success("Imported!")
                             }
                             _ => self.toasts.error("Un supported file type!")
                         }
                     } else {
-                        self.toasts.error("You must select a save file to export!")
+                        self.toasts.error("You must select a file to import!")
                     }
-                    .set_duration(Some(Duration::from_secs(5)));
+                        .set_duration(Some(Duration::from_secs(5)));
                 }
             },
         );
