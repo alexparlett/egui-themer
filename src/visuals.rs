@@ -104,8 +104,8 @@ impl VisualsMenu {
         ));
         ui.add(float_picker(
             "Text Cursor Width",
-            &mut visuals.text_cursor_width,
-            self.visuals_default.text_cursor_width,
+            &mut visuals.text_cursor.width,
+            self.visuals_default.text_cursor.width,
         ));
         ui.add(bool_picker(
             "Text Cursor Preview",

@@ -1,10 +1,7 @@
-use eframe::{
-    egui::{
-        Frame, Hyperlink, Layout, Margin, Response, RichText, ScrollArea, SidePanel, Style, Ui,
-        Visuals, Widget,
-    },
-    emath::Align,
-};
+use eframe::{egui::{
+    Frame, Hyperlink, Layout, Margin, Response, RichText, ScrollArea, SidePanel, Style, Ui,
+    Visuals, Widget,
+}, egui, emath::Align};
 use egui_demo_lib::DemoWindows;
 use export::ExportMenu;
 use interaction::InteractionMenu;
@@ -26,7 +23,7 @@ fn main() {
         eframe::NativeOptions::default(),
         Box::new(|_| Box::new(Themer::default())),
     )
-    .expect("run eframe native app");
+        .expect("run eframe native app");
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -35,10 +32,10 @@ fn main() {
 
     wasm_bindgen_futures::spawn_local(async {
         eframe::start_web(
-                "the_canvas_id",
-                eframe::WebOptions::default(),
-                Box::new(|_| Box::new(Themer::default())),
-            )
+            "the_canvas_id",
+            eframe::WebOptions::default(),
+            Box::new(|_| Box::new(Themer::default())),
+        )
             .await
             .expect("failed to start eframe");
     });
@@ -52,6 +49,7 @@ struct Themer {
     misc: MiscMenu,
     spacing: SpacingMenu,
     interaction: InteractionMenu,
+    theme: Style,
 }
 
 impl eframe::App for Themer {
@@ -59,51 +57,55 @@ impl eframe::App for Themer {
         SidePanel::left("themer_side_panel")
             .min_width(370.0)
             .show(ctx, |ui| {
-                let mut style = (*ctx.style()).clone();
+                ui.scope(|ui| {
+                    let mut style = self.theme.clone();
+                    ui.set_style(Style::default());
 
-                ui.heading("Egui Themer");
-                ui.label("Create an egui theme and export it to a Rust source file.");
-                ui.columns(2, |cols| {
-                    cols[0].label("Reset:");
-                    cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
-                        if ui.button("Light").clicked() {
-                            style = Style {
-                                visuals: Visuals::light(),
-                                ..Default::default()
-                            };
-                            self.visuals = VisualsMenu::default();
-                        }
+                    ui.heading("Egui Themer");
+                    ui.label("Create an egui theme and export it to a Rust source file.");
+                    ui.columns(2, |cols| {
+                        cols[0].label("Reset:");
+                        cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
+                            if ui.button("Light").clicked() {
+                                style = Style {
+                                    visuals: Visuals::light(),
+                                    ..Default::default()
+                                };
+                                self.visuals = VisualsMenu::default();
+                            }
 
-                        if ui.button("Dark").clicked() {
-                            style = Style {
-                                visuals: Visuals::dark(),
-                                ..Default::default()
-                            };
-                            self.visuals = VisualsMenu::default();
-                        }
-                    })
+                            if ui.button("Dark").clicked() {
+                                style = Style {
+                                    visuals: Visuals::dark(),
+                                    ..Default::default()
+                                };
+                                self.visuals = VisualsMenu::default();
+                            }
+                        })
+                    });
+                    ui.separator();
+
+                    self.export.ui(ui, ctx, &style);
+                    ui.separator();
+
+                    ScrollArea::both().show(ui, |ui| {
+                        self.visuals.ui(ui, &mut style.visuals);
+                        ui.separator();
+
+                        self.spacing.ui(ui, &mut style.spacing);
+                        ui.separator();
+
+                        self.interaction.ui(ui, &mut style.interaction);
+                        ui.separator();
+
+                        self.misc.ui(ui, &mut style);
+                    });
+
+                    self.theme = style;
                 });
-                ui.separator();
-
-                self.export.ui(ui, ctx, &style);
-                ui.separator();
-
-                ScrollArea::both().show(ui, |ui| {
-                    self.visuals.ui(ui, &mut style.visuals);
-                    ui.separator();
-
-                    self.spacing.ui(ui, &mut style.spacing);
-                    ui.separator();
-
-                    self.interaction.ui(ui, &mut style.interaction);
-                    ui.separator();
-
-                    self.misc.ui(ui, &mut style);
-                });
-
-                ctx.set_style(style);
             });
 
+        ctx.set_style(self.theme.clone());
         self.demo.ui(ctx);
     }
 }
@@ -133,8 +135,8 @@ pub fn picker_frame(ui: &mut Ui, show: impl Widget) -> Response {
         fill: style.visuals.extreme_bg_color,
         ..Frame::none()
     }
-    .show(ui, |ui| {
-        ui.add(show);
-    })
-    .response
+        .show(ui, |ui| {
+            ui.add(show);
+        })
+        .response
 }

@@ -174,7 +174,7 @@ pub fn shadow_picker<'a>(
                         }
                         ui.color_edit_button_srgba(&mut shadow.color);
                         ui.add(
-                            DragValue::new(&mut shadow.extrusion)
+                            DragValue::new(&mut shadow.spread)
                                 .clamp_range(0.0..=40.0)
                                 .min_decimals(1)
                                 .speed(0.05),

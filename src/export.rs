@@ -53,7 +53,7 @@ impl ExportMenu {
                 if let Some(dialog) = &mut self.file_dialog {
                     if dialog.show(ctx).selected() {
                         if let Some(file) = dialog.path() {
-                            self.path = Some(file);
+                            self.path = Some(file.to_path_buf());
                         }
                     }
                 }
