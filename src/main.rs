@@ -8,6 +8,7 @@ use interaction::InteractionMenu;
 use misc::MiscMenu;
 use spacing::SpacingMenu;
 use visuals::VisualsMenu;
+use crate::background::Background;
 use crate::import::ImportMenu;
 
 mod export;
@@ -18,13 +19,17 @@ mod spacing;
 mod visuals;
 mod import;
 mod theme;
+mod background;
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
     eframe::run_native(
         "Egui Themer",
         eframe::NativeOptions::default(),
-        Box::new(|_| Box::new(Themer::default())),
+        Box::new(|ctx| {
+            egui_extras::install_image_loaders(&ctx.egui_ctx);
+            Box::new(Themer::default())
+        }),
     )
         .expect("run eframe native app");
 }
@@ -54,10 +59,12 @@ struct Themer {
     spacing: SpacingMenu,
     interaction: InteractionMenu,
     theme: Style,
+    background: Background
 }
 
 impl eframe::App for Themer {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
+        self.background.show(ctx);
         SidePanel::left("themer_side_panel")
             .min_width(370.0)
             .show(ctx, |ui| {
@@ -66,7 +73,7 @@ impl eframe::App for Themer {
                     ui.set_style(Style::default());
 
                     ui.heading("Egui Themer");
-                    ui.label("Create an egui theme and export it to a Rust source file.");
+                    ui.label("Import/Create an egui theme and export it to a Rust source file.");
                     ui.columns(2, |cols| {
                         cols[0].label("Reset:");
                         cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
@@ -87,6 +94,9 @@ impl eframe::App for Themer {
                             }
                         })
                     });
+                    ui.separator();
+
+                    self.background.ui(ui, ctx);
                     ui.separator();
 
                     self.export.ui(ui, ctx, &style);

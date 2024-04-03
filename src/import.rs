@@ -1,5 +1,4 @@
 use std::{path::PathBuf, time::Duration};
-use std::path::Path;
 
 use eframe::{
     egui::{Context, Direction, Layout, Style, Ui},
